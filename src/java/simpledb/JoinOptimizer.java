@@ -5,6 +5,8 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.tree.*;
 
+import simpledb.Predicate.Op;
+
 /**
  * The JoinOptimizer class is responsible for ordering a series of joins
  * optimally, and for selecting the best instantiation of a join for a given
@@ -107,11 +109,11 @@ public class JoinOptimizer {
             // You do not need to implement proper support for these for Project 3.
             return card1 + cost1 + cost2;
         } else {
-            // some code goes here.
+            // some code goes here. done
             // HINT: You may need to use the variable "j" if you implemented
             // a join algorithm that's more complicated than a basic nested-loops
             // join.
-            return -1.0;
+            return cost1+card1*cost2+card1*card2;
         }
     }
 
@@ -155,7 +157,19 @@ public class JoinOptimizer {
             boolean t2pkey, Map<String, TableStats> stats,
             Map<String, Integer> tableAliasToId) {
         int card = 1;
-        // some code goes here
+        // some code goes here done
+        if(joinOp.equals(Op.EQUALS))
+        {
+        	if(t1pkey && t2pkey)
+        		card = Math.min(card1, card2);
+        	else if(t1pkey)
+        		card = card2;
+        	else if(t2pkey)
+        		card = card1;
+        	else
+        		card = Math.max(card1, card2);
+        }
+
         return card <= 0 ? 1 : card;
     }
 
@@ -222,7 +236,51 @@ public class JoinOptimizer {
 
         // some code goes here
         //Replace the following
-        return joins;
+    	PlanCache pc = new PlanCache();
+    	Set<LogicalJoinNode> joinOrder = new HashSet<LogicalJoinNode>();
+    	joinOrder.addAll(joins);
+//    	
+//    			1. j = set of join nodes
+//    			2. for (i in 1...|j|):
+//    			3.     for s in {all length i subsets of j}
+//    			4.       bestPlan = {}
+//    			5.       for s' in {all length d-1 subsets of s}
+//    			6.            subplan = optjoin(s')
+//    			7.            plan = best way to join (s-s') to subplan
+//    			8.            if (cost(plan) < cost(bestPlan))
+//    			9.               bestPlan = plan
+//    			10.      optjoin(s) = bestPlan
+//    			11. return optjoin(j)
+    	
+    	Integer bestCard;
+    	Vector<LogicalJoinNode> bestPlan;
+		Double bestCost;
+    	for(int i = 1; i<joins.size();i++){
+    		Set<Set<LogicalJoinNode>> subsetOfLengthi = enumerateSubsets(joins, i);
+    		//check each subset ordered join
+    		for(Set<LogicalJoinNode>  s : subsetOfLengthi){
+    			
+    			bestCard = Integer.MAX_VALUE;
+    			bestPlan = null;
+    			bestCost = Double.MAX_VALUE;
+    			boolean mark = false;
+    			for(LogicalJoinNode n : s)
+    			{
+    				CostCard CC = computeCostAndCardOfSubplan(stats, filterSelectivities, n, s,Double.MAX_VALUE, pc);
+    				if(CC!=null && CC.cost<bestCost)
+    				{
+    					mark = true;
+    					bestCost = CC.cost;
+    					bestPlan = CC.plan;
+    					bestCard = CC.card;
+    				}
+    			}
+    			if(mark)
+    				pc.addPlan(s, bestCost, bestCard, bestPlan);
+    			mark = false;
+    		}
+    	}     
+    	return bestPlan;
     }
 
     // ===================== Private Methods =================================

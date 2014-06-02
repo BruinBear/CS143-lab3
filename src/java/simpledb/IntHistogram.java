@@ -116,9 +116,8 @@ public class IntHistogram {
     public double estimateSelectivity(Predicate.Op op, int v) {
 
     	// some code goes here
-    	String str = op.toString();
     	int index = getIndex(v);
-    	int offset = (v-(m_min+index*m_interval));
+    	//int offset = (v-(m_min+index*m_interval));
     	boolean minflag=false;
     	boolean maxflag=false;
     	if(v<m_min)
@@ -139,7 +138,7 @@ public class IntHistogram {
 			if(maxflag)
 				return 0;
 			if(v==m_max)
-				return getEql(v);
+				return 0;
     		return forGetEqls(v+1,m_max);
 		case LESS_THAN:
 			if(minflag)
@@ -147,7 +146,7 @@ public class IntHistogram {
 			if(maxflag)
 				return 1;
 			if(v==m_min)
-				return getEql(v);
+				return 0;
     		return forGetEqls(m_min, v-1);
 		case GREATER_THAN_OR_EQ:
 			if(minflag)
