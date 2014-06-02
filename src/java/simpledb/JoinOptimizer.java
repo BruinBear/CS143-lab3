@@ -253,7 +253,7 @@ public class JoinOptimizer {
 //    			11. return optjoin(j)
     	
     	Integer bestCard;
-    	Vector<LogicalJoinNode> bestPlan;
+    	Vector<LogicalJoinNode> bestPlan = null;
 		Double bestCost;
     	for(int i = 1; i<joins.size();i++){
     		Set<Set<LogicalJoinNode>> subsetOfLengthi = enumerateSubsets(joins, i);
