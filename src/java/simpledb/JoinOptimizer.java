@@ -241,7 +241,7 @@ public class JoinOptimizer {
     	
     	PlanCache pc = new PlanCache();
     	
-    	System.out.print("this set is"+joins.toString()+"\n");
+    	//System.out.print("this set is"+joins.toString()+"\n");
     	Integer bestCard;
     	Vector<LogicalJoinNode> bestPlan = null;
 		Double bestCost;
@@ -258,9 +258,9 @@ public class JoinOptimizer {
     				CostCard CC = computeCostAndCardOfSubplan(stats, filterSelectivities, n, s, bestCost, pc);
     				if(CC!=null && CC.cost<bestCost)
     				{
-        		    	System.out.print("the best cost is:"+bestCost+"\n");
-        		    	System.out.print("the new best cost is:"+CC.cost+"\n");
-        		    	System.out.print("best plan is:"+CC.plan.toString()+"\n");
+//        		    	System.out.print("the best cost is:"+bestCost+"\n");
+//        		    	System.out.print("the new best cost is:"+CC.cost+"\n");
+//        		    	System.out.print("best plan is:"+CC.plan.toString()+"\n");
 
     					bestCost = CC.cost;
     					bestPlan = CC.plan;
