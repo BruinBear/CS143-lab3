@@ -464,6 +464,9 @@ public class JoinOptimizerTest extends SimpleDbTestBase {
 		Assert.assertEquals(result.size(), nodes.size());
 		
 		// Make sure that "a" is the outermost table in the join
+		String left = result.get(result.size() - 1).t2Alias;
+		String right = result.get(result.size() - 1).t1Alias;
+
 		Assert.assertTrue(result.get(result.size() - 1).t2Alias.equals("a") || result.get(result.size() - 1).t1Alias.equals("a"));
 	}
 }

@@ -166,7 +166,8 @@ public class TableStats {
 					else{//string type
 						String fieldName= m_tupleDes.getFieldName(i);
 						String fieldVal = ((StringField) tuple.getField(i)).getValue();
-						if(m_histos.containsKey(fieldName))
+						
+						if(m_string_histos.containsKey(fieldName))
 						{
 							StringHistogram m_newhisto = m_string_histos.get(fieldName);
 							m_newhisto.addValue(fieldVal);
@@ -174,8 +175,7 @@ public class TableStats {
 						}
 						else{
 							//initialize
-							m_string_histos.put(fieldName, new StringHistogram(NUM_HIST_BINS));
-							StringHistogram m_newhisto = m_string_histos.get(fieldName);
+							StringHistogram m_newhisto = new StringHistogram(NUM_HIST_BINS);
 							m_newhisto.addValue(fieldVal);
 							m_string_histos.put(fieldName,m_newhisto);
 						}
@@ -214,7 +214,7 @@ public class TableStats {
     	m_tuple_count = 0;
     	m_tupleDes = m_file.getTupleDesc();
     	m_histos = new HashMap<String, IntHistogram>();
-
+    	m_string_histos = new HashMap<String, StringHistogram>();
         m_min = new HashMap<String, Integer>();
         m_max = new HashMap<String, Integer>();;
     	minmaxInitializer();

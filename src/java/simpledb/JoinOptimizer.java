@@ -236,9 +236,7 @@ public class JoinOptimizer {
 
         // some code goes here
         //Replace the following
-    	PlanCache pc = new PlanCache();
-    	Set<LogicalJoinNode> joinOrder = new HashSet<LogicalJoinNode>();
-    	joinOrder.addAll(joins);
+    	
 //    	
 //    			1. j = set of join nodes
 //    			2. for (i in 1...|j|):
@@ -251,12 +249,15 @@ public class JoinOptimizer {
 //    			9.               bestPlan = plan
 //    			10.      optjoin(s) = bestPlan
 //    			11. return optjoin(j)
+    	PlanCache pc = new PlanCache();
+    	Set<LogicalJoinNode> joinOrder = new HashSet<LogicalJoinNode>();
+    	joinOrder.addAll(this.joins);
     	
     	Integer bestCard;
     	Vector<LogicalJoinNode> bestPlan = null;
 		Double bestCost;
-    	for(int i = 1; i<joins.size();i++){
-    		Set<Set<LogicalJoinNode>> subsetOfLengthi = enumerateSubsets(joins, i);
+    	for(int i = 1; i<=this.joins.size();i++){
+    		Set<Set<LogicalJoinNode>> subsetOfLengthi = enumerateSubsets(this.joins, i);
     		//check each subset ordered join
     		for(Set<LogicalJoinNode>  s : subsetOfLengthi){
     			
@@ -280,7 +281,7 @@ public class JoinOptimizer {
     			mark = false;
     		}
     	}     
-    	return bestPlan;
+    	return pc.getOrder(joinOrder);
     }
 
     // ===================== Private Methods =================================
