@@ -169,8 +169,10 @@ public class JoinOptimizer {
         	else
         		card = Math.max(card1, card2);
         }
-
-        return card <= 0 ? 1 : card;
+        else{
+        	card = (int) (card1*card2*0.3);
+        }
+        return card;
     }
 
     /**
@@ -237,22 +239,9 @@ public class JoinOptimizer {
         // some code goes here
         //Replace the following
     	
-//    	
-//    			1. j = set of join nodes
-//    			2. for (i in 1...|j|):
-//    			3.     for s in {all length i subsets of j}
-//    			4.       bestPlan = {}
-//    			5.       for s' in {all length d-1 subsets of s}
-//    			6.            subplan = optjoin(s')
-//    			7.            plan = best way to join (s-s') to subplan
-//    			8.            if (cost(plan) < cost(bestPlan))
-//    			9.               bestPlan = plan
-//    			10.      optjoin(s) = bestPlan
-//    			11. return optjoin(j)
     	PlanCache pc = new PlanCache();
-    	Set<LogicalJoinNode> joinOrder = new HashSet<LogicalJoinNode>();
-    	joinOrder.addAll(this.joins);
     	
+    	System.out.print("this set is"+joins.toString()+"\n");
     	Integer bestCard;
     	Vector<LogicalJoinNode> bestPlan = null;
 		Double bestCost;
@@ -264,25 +253,32 @@ public class JoinOptimizer {
     			bestCard = Integer.MAX_VALUE;
     			bestPlan = null;
     			bestCost = Double.MAX_VALUE;
-    			boolean mark = false;
     			for(LogicalJoinNode n : s)
     			{
-    				CostCard CC = computeCostAndCardOfSubplan(stats, filterSelectivities, n, s,Double.MAX_VALUE, pc);
+    				CostCard CC = computeCostAndCardOfSubplan(stats, filterSelectivities, n, s, bestCost, pc);
     				if(CC!=null && CC.cost<bestCost)
     				{
-    					mark = true;
+        		    	System.out.print("the best cost is:"+bestCost+"\n");
+        		    	System.out.print("the new best cost is:"+CC.cost+"\n");
+        		    	System.out.print("best plan is:"+CC.plan.toString()+"\n");
+
     					bestCost = CC.cost;
     					bestPlan = CC.plan;
     					bestCard = CC.card;
     				}
     			}
-    			if(mark)
+    			if(bestCost<Double.MAX_VALUE)
+    			{
     				pc.addPlan(s, bestCost, bestCard, bestPlan);
-    			mark = false;
+    			}
     		}
-    	}     
-    	return pc.getOrder(joinOrder);
-    }
+    	}
+//    	Set<LogicalJoinNode> joinOrder = new HashSet<LogicalJoinNode>();
+//    	joinOrder.addAll(this.joins);
+//    	Vector<LogicalJoinNode> ret = pc.getOrder(joinOrder);
+//        
+    	return bestPlan;
+	}
 
     // ===================== Private Methods =================================
 
@@ -338,7 +334,7 @@ public class JoinOptimizer {
                 this.p.getTableId(j.t2Alias));
         String table1Alias = j.t1Alias;
         String table2Alias = j.t2Alias;
-
+//1
         Set<LogicalJoinNode> news = (Set<LogicalJoinNode>) ((HashSet<LogicalJoinNode>) joinSet)
                 .clone();
         news.remove(j);
@@ -346,7 +342,7 @@ public class JoinOptimizer {
         double t1cost, t2cost;
         int t1card, t2card;
         boolean leftPkey, rightPkey;
-
+//2
         if (news.isEmpty()) { // base case -- both are base relations
             prevBest = new Vector<LogicalJoinNode>();
             t1cost = stats.get(table1Name).estimateScanCost();
@@ -373,7 +369,7 @@ public class JoinOptimizer {
 
             double prevBestCost = pc.getCost(news);
             int bestCard = pc.getCard(news);
-
+//
             // estimate cost of right subtree
             if (doesJoin(prevBest, table1Alias)) { // j.t1 is in prevBest
                 t1cost = prevBestCost; // left side just has cost of whatever

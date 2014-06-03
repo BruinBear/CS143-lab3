@@ -1,0 +1,44 @@
+SimpleDB> select d.fname, d.lname
+SimpleDB> from Actor a, Casts c, Movie_Director m, Director d
+SimpleDB> where a.id=c.pid and c.mid=m.mid and m.did=d.id 
+SimpleDB> and a.fname='John' and a.lname='Spicer';
+Started a new transaction tid = 0
+Added scan of table a
+Added scan of table c
+Added scan of table m
+Added scan of table d
+Added join between a.id and c.pid
+Added join between c.mid and m.mid
+Added join between m.did and d.id
+Added select list field d.fname
+Added select list field d.lname
+The query plan is:
+                            π(d.fname,d.lname),card:1
+                            |
+                            ⨝(a.id=c.pid),card:1
+  __________________________|___________________________
+  |                                                    |
+  σ(a.lname=Spicer),card:1                             ⨝(m.mid=c.mid),card:3008
+  |                                    ________________|_________________
+  σ(a.fname=John),card:1               |                                |
+  |                                    ⨝(d.id=m.did),card:278           |
+  |                           _________|_________                       |
+  |                           |                 |                     scan(Casts c)
+scan(Actor a)               scan(Director d)  scan(Movie_Director m)
+
+d.fname	d.lname	
+------------------------
+Chris	Malazdrewicz
+
+Thomas	Parkinson
+
+Alain	Zaloum
+
+
+ 3 rows.
+Transaction 0 committed.
+----------------
+3.67 seconds
+
+Explain why it chooses such query plan?
+
